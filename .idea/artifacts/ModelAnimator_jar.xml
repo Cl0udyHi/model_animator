@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ModelAnimator:jar">
+    <output-path>$USER_HOME$/Documents/MC Servers/1.21.8 (animation)/plugins</output-path>
+    <root id="archive" name="ModelAnimator.jar">
+      <element id="module-output" name="ModelAnimator" />
+    </root>
+  </artifact>
+</component>

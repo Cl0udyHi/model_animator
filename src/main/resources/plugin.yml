@@ -1,0 +1,17 @@
+name: ModelAnimator
+version: ${project.version}
+main: com.modelanimator.ModelAnimatorPlugin
+api-version: '1.21'
+description: Animate Blockbench models as Display Entities on PaperMC
+authors: [ModelAnimator]
+
+commands:
+  manim:
+    description: ModelAnimator main command
+    usage: /manim <spawn|remove|play|stop|list> [args...]
+    aliases: [modelanimator]
+
+permissions:
+  modelanimator.use:
+    description: Use ModelAnimator commands
+    default: op

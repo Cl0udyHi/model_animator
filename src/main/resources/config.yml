@@ -1,0 +1,20 @@
+# ModelAnimator Configuration
+# Define CustomModelData mappings for each model's bones here.
+# Format:
+#   models:
+#     <model_name>:
+#       <bone_name>: <custom_model_data_number>
+#
+# Example:
+#   models:
+#     mycharacter:
+#       head: 1001
+#       right_leg: 1002
+#       left_leg: 1003
+
+models:
+  # Add your models below:
+  # mycharacter:
+  #   head: 1001
+  #   right_leg: 1002
+  #   left_leg: 1003
