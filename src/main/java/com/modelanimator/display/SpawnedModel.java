@@ -15,13 +15,13 @@ public class SpawnedModel {
     private final ManimModel definition;
     private final Location origin;
 
-    /** The invisible root entity — move this to move the whole model */
     private ItemDisplay rootEntity;
 
-    /** bone group uuid → ItemDisplay */
-    private final Map<String, ItemDisplay> boneDisplays = new HashMap<>();
+    // uuid → joint (empty entity, defines position hierarchy)
+    private final Map<String, ItemDisplay> boneJoints = new HashMap<>();
+    // uuid → mesh (visible entity, gets animated directly)
+    private final Map<String, ItemDisplay> boneMeshes = new HashMap<>();
 
-    // Animation state
     private String  currentAnimation = null;
     private float   animationTime    = 0f;
     private boolean playing          = false;
@@ -30,38 +30,38 @@ public class SpawnedModel {
         this.id         = UUID.randomUUID();
         this.modelName  = modelName;
         this.definition = definition;
-        this.origin     = origin.clone();
+        this.origin     = origin;
     }
-
-    // ── Accessors ──────────────────────────────────────────────────────────────
 
     public UUID getId()               { return id; }
     public String getModelName()      { return modelName; }
     public ManimModel getDefinition() { return definition; }
     public Location getOrigin()       { return origin; }
 
-    public ItemDisplay getRootEntity()             { return rootEntity; }
-    public void setRootEntity(ItemDisplay root)    { this.rootEntity = root; }
+    public ItemDisplay getRootEntity()          { return rootEntity; }
+    public void setRootEntity(ItemDisplay root) { this.rootEntity = root; }
 
-    public Map<String, ItemDisplay> getBoneDisplays()            { return boneDisplays; }
-    public void putBoneDisplay(String groupUuid, ItemDisplay d)  { boneDisplays.put(groupUuid, d); }
+    public Map<String, ItemDisplay> getBoneJoints() { return boneJoints; }
+    public Map<String, ItemDisplay> getBoneMeshes() { return boneMeshes; }
 
-    public String getCurrentAnimation()            { return currentAnimation; }
-    public void setCurrentAnimation(String name)   { this.currentAnimation = name; animationTime = 0f; }
+    // Legacy — joints are used by AnimationManager for bone lookup
+    public Map<String, ItemDisplay> getBoneDisplays() { return boneJoints; }
 
-    public float getAnimationTime()                { return animationTime; }
-    public void advanceTime(float delta)           { animationTime += delta; }
-    public void setAnimationTime(float t)          { animationTime = t; }
+    public void putBoneJoint(String uuid, ItemDisplay joint) { boneJoints.put(uuid, joint); }
+    public void putBoneMesh(String uuid, ItemDisplay mesh)   { boneMeshes.put(uuid, mesh); }
 
+    public String  getCurrentAnimation()           { return currentAnimation; }
+    public void    setCurrentAnimation(String a)   { this.currentAnimation = a; }
+    public float   getAnimationTime()              { return animationTime; }
+    public void    setAnimationTime(float t)       { this.animationTime = t; }
     public boolean isPlaying()                     { return playing; }
-    public void setPlaying(boolean b)              { playing = b; }
+    public void    setPlaying(boolean b)           { this.playing = b; }
 
-    /** Remove all entities including the root. */
     public void removeEntities() {
-        for (ItemDisplay d : boneDisplays.values())
-            if (d != null && d.isValid()) d.remove();
-        boneDisplays.clear();
         if (rootEntity != null && rootEntity.isValid()) rootEntity.remove();
-        rootEntity = null;
+        for (ItemDisplay d : boneJoints.values()) if (d != null && d.isValid()) d.remove();
+        for (ItemDisplay d : boneMeshes.values()) if (d != null && d.isValid()) d.remove();
+        boneJoints.clear();
+        boneMeshes.clear();
     }
 }

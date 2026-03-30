@@ -76,6 +76,7 @@ public class ManimCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player p)) {
             sender.sendMessage(PREFIX + "Must be a player."); return;
         }
+
         if (args.length < 2) { sender.sendMessage(PREFIX + "Usage: /manim spawn <model>"); return; }
 
         String name = args[1];

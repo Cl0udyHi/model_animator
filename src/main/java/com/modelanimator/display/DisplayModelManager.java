@@ -80,7 +80,7 @@ public class DisplayModelManager {
                     (thisOrigin[0] - parentOrigin[0]) * BB,
                     (thisOrigin[1] - parentOrigin[1]) * BB,
                     (thisOrigin[2] - parentOrigin[2]) * BB
-            );
+            ); // relative pivot is already correct - this minus parent, both absolute
 
             // Rest rotation of this bone
             float[] rot = group.rotation != null ? group.rotation : new float[]{0, 0, 0};
@@ -99,19 +99,29 @@ public class DisplayModelManager {
             parentJoint.addPassenger(joint);
             jointMap.put(group.uuid, joint);
 
-            // ── Spawn the MESH: the visible item, rides the joint at (0,0,0)
-            // No offset needed — it sits exactly at the joint's position
+            // ── Spawn the MESH: visible item, rides ROOT only (not the joint)
+            // Passengers cannot have setTransformation applied client-side while riding.
+            // So mesh rides root and gets its full world-relative transform every tick.
             ItemDisplay mesh = spawnMesh(location, model.meta.name, group);
+            // Set rest transform = absolute position relative to root (in blocks)
+            Vector3f absTranslation = new Vector3f(
+                    parentOrigin[0] * BB,
+                    parentOrigin[1] * BB,
+                    parentOrigin[2] * BB
+            );
+            Quaternionf meshRestRot = MathUtil.eulerToQuaternion(
+                    group.rotation != null ? group.rotation[0] : 0f,
+                    group.rotation != null ? group.rotation[1] : 0f,
+                    group.rotation != null ? group.rotation[2] : 0f
+            );
             mesh.setTransformation(new Transformation(
-                    new Vector3f(0, 0, 0),
-                    new Quaternionf(),
-                    new Vector3f(1, 1, 1),
-                    new Quaternionf()
+                    absTranslation, meshRestRot, new Vector3f(1, 1, 1), new Quaternionf()
             ));
-            joint.addPassenger(mesh);
+            root.addPassenger(mesh);
 
-            // Store the JOINT (not the mesh) — animation drives the joint
-            spawned.putBoneDisplay(group.uuid, joint);
+            // Store both — joints for hierarchy, meshes for animation
+            spawned.putBoneJoint(group.uuid, joint);
+            spawned.putBoneMesh(group.uuid, mesh);
 
             plugin.getLogger().info("[MA] Bone '" + group.name + "'"
                     + " parent=" + (group.parent != null ? group.parent.substring(0, 8) : "ROOT")
